@@ -1,12 +1,12 @@
 {
   "frontend/src/App.tsx": "Main application component with TanStack Router setup, theme provider, and route definitions for projects list and audio editor pages.",
   "frontend/src/components/layout/AppLayout.tsx": "Shared layout component with header, main content area, and footer used across all pages.",
-  "frontend/src/components/auth/AuthGate.tsx": "Authentication gate that requires login before showing app content and handles profile setup for new users.",
+  "frontend/src/components/auth/AuthGate.tsx": "Authentication gate that waits for actor readiness before checking profile setup, preventing modal flash during connection.",
   "frontend/src/components/auth/LoginButton.tsx": "Login/logout button component using Internet Identity with loading states.",
   "frontend/src/components/auth/ProfileSetupModal.tsx": "Modal dialog for first-time user profile setup requiring name input.",
-  "frontend/src/features/projects/ProjectsPage.tsx": "Projects list page that gates \"New Project\" actions on backend readiness, displays connecting alert when backend is initializing, and shows clear English feedback to users.",
+  "frontend/src/features/projects/ProjectsPage.tsx": "Projects list page with error-aware UI that displays connection errors with retry button instead of infinite connecting state.",
   "frontend/src/features/projects/components/ProjectDialogs.tsx": "Create project dialog that prevents opening and submission when backend is not ready, closes automatically if backend becomes unavailable, and shows English toast messages for readiness issues.",
-  "frontend/src/features/editor/AudioEditorPage.tsx": "Audio editor page that displays connecting state while backend initializes, only shows \"project not found\" after backend is ready and fetch completes, and includes readiness alert when needed.",
+  "frontend/src/features/editor/AudioEditorPage.tsx": "Audio editor page with error-aware UI that shows connection errors with retry button and prevents infinite connecting state.",
   "frontend/src/features/editor/components/AudioUploadCard.tsx": "Audio upload component that gates all upload interactions (dropzone, click-to-upload) on backend readiness and displays clear English connecting messages when backend is not available.",
   "frontend/src/features/editor/components/TransportControls.tsx": "Audio playback controls with play/pause, seek bar, time display, and volume slider.",
   "frontend/src/features/editor/components/EqualizerPanel.tsx": "Five-band equalizer UI with vertical sliders, enable toggle, and reset functionality.",
@@ -22,13 +22,14 @@
   "frontend/src/features/editor/utils/offlineRender.ts": "Offline audio rendering utilities that render mixed exports using current stem mixer state (volume/mute/solo) for all stems including generated accompaniment, or original audio with EQ when no stems exist.",
   "frontend/src/features/editor/utils/wavEncode.ts": "WAV file encoder converting AudioBuffer to WAV format for downloads.",
   "frontend/src/features/editor/utils/download.ts": "Utility for safely downloading audio files as WAV with error handling.",
-  "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations including projects, user profiles, and file management.",
+  "frontend/src/hooks/useQueries.ts": "React Query hooks for backend operations now using useActorConnection instead of useActor, with queries paused until actor is ready.",
   "frontend/src/index.css": "Global styles with OKLCH color system using amber/orange theme instead of blue/purple.",
   "frontend/tailwind.config.js": "Tailwind configuration with custom amber-themed color palette and Inter font family.",
-  "frontend/src/utils/backendError.ts": "Backend error parser that converts raw errors into user-friendly English messages with actionable suggestions, now aligned with consistent \"Connecting to the backend…\" messaging for actor-unavailable cases.",
+  "frontend/src/utils/backendError.ts": "Backend error parser that converts connection failures and other errors into user-friendly English messages, with formatErrorForDisplay function for UI display.",
   "frontend/src/features/editor/utils/tempoAnalysis.ts": "Browser-only BPM estimation utility using autocorrelation on audio buffer data with no external API calls, returning estimated tempo or throwing descriptive errors.",
   "frontend/src/features/editor/hooks/useTempoAnalysis.ts": "React hook managing tempo analysis state including estimated BPM, loading/error states, and methods to analyze audio buffers and reset state.",
   "frontend/src/features/editor/utils/accompanimentGeneration.ts": "Offline accompaniment generation using Web Audio synthesis to create drums, bass, and guitar-like parts based on tempo, producing AudioBuffers aligned to project duration without external assets.",
   "frontend/src/features/editor/components/AILikeAccompanimentPanel.tsx": "UI panel for AI-like accompaniment feature with controls for tempo analysis, tempo override slider, generate parts button, and clear generated parts functionality with appropriate loading/disabled states.",
-  "frontend/src/hooks/useBackendReadiness.ts": "Reusable hook that derives backend readiness state from useActor and provides consistent English user-facing messaging for connecting/ready states."
+  "frontend/src/hooks/useBackendReadiness.ts": "Refactored readiness hook using useActorConnection that distinguishes connecting vs error states and provides retry handler for failed connections.",
+  "frontend/src/hooks/useActorConnection.ts": "New resilient actor connection hook that creates backend actors with non-blocking admin initialization, explicit error states, and user-triggered retry functionality."
 }

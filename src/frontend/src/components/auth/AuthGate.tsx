@@ -1,11 +1,13 @@
 import { useInternetIdentity } from '@/hooks/useInternetIdentity';
 import { useGetCallerUserProfile } from '@/hooks/useQueries';
+import { useActorConnection } from '@/hooks/useActorConnection';
 import { Loader2 } from 'lucide-react';
 import LoginButton from './LoginButton';
 import ProfileSetupModal from './ProfileSetupModal';
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const { identity, isInitializing } = useInternetIdentity();
+  const { actor, isLoading: actorLoading } = useActorConnection();
   const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
 
   const isAuthenticated = !!identity && !identity.getPrincipal().isAnonymous();
@@ -42,7 +44,9 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  const showProfileSetup = isAuthenticated && !profileLoading && isFetched && userProfile === null;
+  // Wait for actor to be ready before checking profile
+  // This prevents profile setup modal from flashing when actor is still connecting
+  const showProfileSetup = isAuthenticated && !!actor && !actorLoading && !profileLoading && isFetched && userProfile === null;
 
   return (
     <>

@@ -31,8 +31,8 @@ export function parseBackendError(error: unknown): ParsedError {
 
   // Fallback for unknown error types
   return {
-    message: 'An unexpected error occurred. Please try again.',
-    suggestedAction: 'If the problem persists, try refreshing the page.',
+    message: 'Failed to connect to the backend.',
+    suggestedAction: 'Please check your connection and try again.',
   };
 }
 
@@ -41,6 +41,17 @@ export function parseBackendError(error: unknown): ParsedError {
  */
 function parseErrorMessage(message: string): ParsedError {
   const lowerMessage = message.toLowerCase();
+
+  // Actor/connection errors
+  if (lowerMessage.includes('actor not available') || 
+      lowerMessage.includes('failed to fetch') ||
+      lowerMessage.includes('network') ||
+      lowerMessage.includes('connection')) {
+    return {
+      message: 'Failed to connect to the backend.',
+      suggestedAction: 'Please check your connection and try again.',
+    };
+  }
 
   // Authorization errors
   if (lowerMessage.includes('unauthorized') || lowerMessage.includes('only users can')) {
@@ -74,45 +85,40 @@ function parseErrorMessage(message: string): ParsedError {
     };
   }
 
-  // Actor not available - aligned with readiness messaging
-  if (lowerMessage.includes('actor not available')) {
+  // File size errors
+  if (lowerMessage.includes('file too large') || lowerMessage.includes('size limit')) {
     return {
-      message: 'Connecting to the backend… Please wait.',
-      suggestedAction: 'Try again in a moment.',
+      message: 'The file is too large to upload.',
+      suggestedAction: 'Please choose a smaller file (maximum 50MB).',
     };
   }
 
-  // Generic trap or rejection
-  if (lowerMessage.includes('trap') || lowerMessage.includes('reject')) {
-    // Try to extract the actual error message after "trap" or "reject"
-    const trapMatch = message.match(/trap[:\s]+(.+)/i);
-    const rejectMatch = message.match(/reject[:\s]+(.+)/i);
-    const extractedMessage = trapMatch?.[1] || rejectMatch?.[1];
-
-    if (extractedMessage) {
-      // Recursively parse the extracted message
-      return parseErrorMessage(extractedMessage);
-    }
-
+  // Generic trap/rejection
+  if (lowerMessage.includes('reject') || lowerMessage.includes('trap')) {
     return {
       message: 'The operation could not be completed.',
-      suggestedAction: 'Please try again or refresh the page.',
+      suggestedAction: 'Please try again or contact support if the issue persists.',
     };
   }
 
-  // Return the original message if no specific pattern matched
+  // Return the original message if no specific pattern matches
   return {
-    message: message || 'An error occurred. Please try again.',
+    message: message || 'An unexpected error occurred.',
+    suggestedAction: 'Please try again.',
   };
 }
 
 /**
- * Format error for display in toast or UI
+ * Format error for display in toast notifications or UI
  */
 export function formatErrorForDisplay(error: unknown): string {
   const parsed = parseBackendError(error);
-  if (parsed.suggestedAction) {
-    return `${parsed.message} ${parsed.suggestedAction}`;
-  }
-  return parsed.message;
+  return parsed.suggestedAction 
+    ? `${parsed.message} ${parsed.suggestedAction}`
+    : parsed.message;
 }
+
+/**
+ * Alias for formatErrorForDisplay for backward compatibility
+ */
+export const formatErrorForToast = formatErrorForDisplay;

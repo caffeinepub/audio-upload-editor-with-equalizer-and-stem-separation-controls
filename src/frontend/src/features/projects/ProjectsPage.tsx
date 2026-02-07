@@ -4,16 +4,16 @@ import { useGetAllProjects } from '@/hooks/useQueries';
 import { useBackendReadiness } from '@/hooks/useBackendReadiness';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, FolderOpen, Loader2, Music, Calendar } from 'lucide-react';
+import { Plus, FolderOpen, Loader2, Music, Calendar, AlertCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import ProjectDialogs from './components/ProjectDialogs';
 import LoginButton from '@/components/auth/LoginButton';
 
 export default function ProjectsPage() {
   const navigate = useNavigate();
   const { data: projects, isLoading } = useGetAllProjects();
-  const { isReady, isConnecting, message } = useBackendReadiness();
+  const { isReady, isConnecting, isError, message, retry } = useBackendReadiness();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   const handleOpenProject = (projectId: string) => {
@@ -56,6 +56,24 @@ export default function ProjectsPage() {
         <Alert className="mb-6">
           <Loader2 className="w-4 h-4 animate-spin" />
           <AlertDescription>{message}</AlertDescription>
+        </Alert>
+      )}
+
+      {isError && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="w-4 h-4" />
+          <AlertTitle>Connection Error</AlertTitle>
+          <AlertDescription className="flex items-center justify-between">
+            <span>{message}</span>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={retry}
+              className="ml-4"
+            >
+              Retry
+            </Button>
+          </AlertDescription>
         </Alert>
       )}
 

@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useActor } from './useActor';
+import { useActorConnection } from './useActorConnection';
 import type { Project, UserProfile } from '@/backend';
 import { ExternalBlob } from '@/backend';
 
 export function useGetCallerUserProfile() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isLoading: actorLoading } = useActorConnection();
 
   const query = useQuery<UserProfile | null>({
     queryKey: ['currentUserProfile'],
@@ -12,19 +12,19 @@ export function useGetCallerUserProfile() {
       if (!actor) throw new Error('Actor not available');
       return actor.getCallerUserProfile();
     },
-    enabled: !!actor && !actorFetching,
+    enabled: !!actor && !actorLoading,
     retry: false,
   });
 
   return {
     ...query,
-    isLoading: actorFetching || query.isLoading,
+    isLoading: actorLoading || query.isLoading,
     isFetched: !!actor && query.isFetched,
   };
 }
 
 export function useSaveCallerUserProfile() {
-  const { actor } = useActor();
+  const { actor } = useActorConnection();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -39,7 +39,7 @@ export function useSaveCallerUserProfile() {
 }
 
 export function useGetAllProjects() {
-  const { actor, isFetching } = useActor();
+  const { actor, isLoading: actorLoading } = useActorConnection();
 
   return useQuery<Project[]>({
     queryKey: ['projects'],
@@ -47,12 +47,12 @@ export function useGetAllProjects() {
       if (!actor) return [];
       return actor.getAllProjects();
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !actorLoading,
   });
 }
 
 export function useGetProject(projectId: string) {
-  const { actor, isFetching } = useActor();
+  const { actor, isLoading: actorLoading } = useActorConnection();
 
   return useQuery<Project | null>({
     queryKey: ['project', projectId],
@@ -60,12 +60,12 @@ export function useGetProject(projectId: string) {
       if (!actor) return null;
       return actor.getProject(projectId);
     },
-    enabled: !!actor && !isFetching && !!projectId,
+    enabled: !!actor && !actorLoading && !!projectId,
   });
 }
 
 export function useCreateProject() {
-  const { actor } = useActor();
+  const { actor } = useActorConnection();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -80,7 +80,7 @@ export function useCreateProject() {
 }
 
 export function useAddFileToProject() {
-  const { actor } = useActor();
+  const { actor } = useActorConnection();
   const queryClient = useQueryClient();
 
   return useMutation({

@@ -2,13 +2,32 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-prevent-user-actions-that-require-the-backend-actor-from-running-while-the-backend-connection-is-still-initializing-and-show-clear-english-ui-feedback-instead-of-allowing-operations-to-fail-with-connection-to-the-backend-is-not-ready",
-      "featureTitle": "Prevent user actions that require the backend actor from running while the backend connection is still initializing, and show clear English UI feedback instead of allowing operations to fail with \"Connection to the backend is not ready.\"",
+      "featureId": "feature-add-a-new-frontend-actor-connection-hook-do-not-edit-immutable-frontend-src-hooks-useactor-ts-that-a-creates-the-backend-actor-for-anonymous-or-authenticated-identities-b-does-not-block-actor-creation-on-optional-admin-secret-initialization-and-c-exposes-explicit-connection-states-loading-ready-error-plus-an-error-message-suitable-for-ui-display",
+      "featureTitle": "Add a new frontend actor/connection hook (do not edit immutable frontend/src/hooks/useActor.ts) that (a) creates the backend actor for anonymous or authenticated identities, (b) does not block actor creation on optional admin-secret initialization, and (c) exposes explicit connection states (loading/ready/error) plus an error message suitable for UI display.",
+      "files": [
+        "frontend/src/hooks/useActorConnection.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-20"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-backend-readiness-ui-logic-to-stop-showing-an-infinite-connecting-to-the-backend-please-wait-state-when-actor-creation-fails-instead-show-an-english-error-state-with-a-clear-retry-action-on-both-projectspage-and-audioeditorpage",
+      "featureTitle": "Update backend readiness UI logic to stop showing an infinite “Connecting to the backend… Please wait.” state when actor creation fails; instead, show an English error state with a clear retry action on both ProjectsPage and AudioEditorPage.",
       "files": [
         "frontend/src/features/editor/AudioEditorPage.tsx",
-        "frontend/src/features/editor/components/AudioUploadCard.tsx",
         "frontend/src/features/projects/ProjectsPage.tsx",
-        "frontend/src/features/projects/components/ProjectDialogs.tsx",
+        "frontend/src/hooks/useBackendReadiness.ts",
         "frontend/src/utils/backendError.ts"
       ],
       "components": [
@@ -21,19 +40,16 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-17"
+        "REQ-21"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-lightweight-reusable-frontend-backend-readiness-utility-hook-or-helper-that-centralizes-the-logic-for-interpreting-actor-availability-and-loading-state-and-update-backend-dependent-screens-to-use-it-consistently",
-      "featureTitle": "Add a lightweight, reusable frontend \"backend readiness\" utility (hook or helper) that centralizes the logic for interpreting actor availability and loading state, and update backend-dependent screens to use it consistently.",
+      "featureId": "feature-refactor-frontend-data-query-hooks-that-depend-on-the-backend-actor-to-use-the-new-actor-connection-hook-instead-of-the-immutable-useactor-ts-ensuring-queries-are-disabled-until-an-actor-is-ready-and-surface-errors-distinctly-from-connecting",
+      "featureTitle": "Refactor frontend data/query hooks that depend on the backend actor to use the new actor/connection hook (instead of the immutable useActor.ts), ensuring queries are disabled until an actor is ready and surface errors distinctly from “connecting”.",
       "files": [
-        "frontend/src/features/editor/AudioEditorPage.tsx",
-        "frontend/src/features/editor/components/AudioUploadCard.tsx",
-        "frontend/src/features/projects/ProjectsPage.tsx",
-        "frontend/src/features/projects/components/ProjectDialogs.tsx",
-        "frontend/src/hooks/useBackendReadiness.ts"
+        "frontend/src/components/auth/AuthGate.tsx",
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -45,7 +61,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-18"
+        "REQ-22"
       ],
       "confidence": "high"
     }

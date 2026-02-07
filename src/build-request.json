@@ -1,55 +1,93 @@
 {
   "kind": "build_request",
-  "title": "Fix 'Connection to the backend is not ready' by gating actions until the backend actor is available",
+  "title": "Fix infinite “Connecting to the backend… Please wait.” state on initial load",
   "priority": "high",
   "requirements": [
     {
-      "id": "REQ-17",
-      "text": "Prevent user actions that require the backend actor from running while the backend connection is still initializing, and show clear English UI feedback instead of allowing operations to fail with \"Connection to the backend is not ready.\"",
-      "target": "frontend",
+      "id": "REQ-19",
+      "text": "Update backend authorization so a normal authenticated Internet Identity user can successfully call user-level APIs (e.g., getCallerUserProfile, getAllProjects, createProject) without requiring any admin secret-token initialization step.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "recent-messages-7"
         ],
         "quotes": [
-          "says connection to back end is not ready"
+          "immediately upon draft creation and is still trying to connect"
         ]
       },
       "acceptanceCriteria": [
-        "On the Projects page, the primary actions that require backend access (e.g., \"New Project\" / opening the create dialog) are disabled whenever the backend actor is null or still fetching.",
-        "When backend is not ready, the Projects page shows a clear, English message (inline on the page or near the disabled controls) indicating the app is connecting to the backend and the user should wait.",
-        "In the Create Project dialog, submitting while the backend actor is not ready is prevented, and an English toast/message explains to wait and try again (no backend call is attempted in this state).",
-        "The editor route (/editor/$projectId) does not attempt backend-dependent fetches/actions in a way that produces the \"Connection to the backend is not ready\" error for normal loading; the UI should display an appropriate loading/connecting state until ready.",
-        "No changes are made to immutable frontend paths (notably frontend/src/hooks/useActor.ts)."
+        "After logging in with Internet Identity, calling getCallerUserProfile does not trap with an authorization error solely because an admin secret was not provided.",
+        "After a fresh page load, an authenticated user can successfully create a project without any secret token present in URL/session params.",
+        "The backend still preserves admin-only privileges for admin actions (if any), and does not automatically grant admin rights to normal users."
       ]
     },
     {
-      "id": "REQ-18",
-      "text": "Add a lightweight, reusable frontend \"backend readiness\" utility (hook or helper) that centralizes the logic for interpreting actor availability and loading state, and update backend-dependent screens to use it consistently.",
+      "id": "REQ-20",
+      "text": "Add a new frontend actor/connection hook (do not edit immutable frontend/src/hooks/useActor.ts) that (a) creates the backend actor for anonymous or authenticated identities, (b) does not block actor creation on optional admin-secret initialization, and (c) exposes explicit connection states (loading/ready/error) plus an error message suitable for UI display.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "recent-messages-7"
         ],
         "quotes": [
-          "says connection to back end is not ready"
+          "immediately upon draft creation and is still trying to connect"
         ]
       },
       "acceptanceCriteria": [
-        "A new non-immutable module (e.g., under frontend/src/hooks/ or frontend/src/utils/) provides a single place to derive readiness state from useActor() (e.g., ready vs connecting vs unavailable).",
-        "ProjectsPage and ProjectDialogs use the shared readiness utility instead of duplicating connection-state logic.",
-        "User-facing text for readiness states is English and consistent across the app (e.g., \"Connecting to the backend…\")."
+        "A new hook exists (in a new file) that provides: actor (or null), isLoading (boolean), isError (boolean), and error (unknown or parsed message).",
+        "If optional admin-secret initialization fails, the hook still returns a usable actor for normal user flows, and surfaces the init failure as a non-blocking warning (not an infinite loading state).",
+        "The hook supports a user-initiated retry mechanism (e.g., refetch/reset) that can be called from the UI."
+      ]
+    },
+    {
+      "id": "REQ-21",
+      "text": "Update backend readiness UI logic to stop showing an infinite “Connecting to the backend… Please wait.” state when actor creation fails; instead, show an English error state with a clear retry action on both ProjectsPage and AudioEditorPage.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages-4",
+          "recent-messages-7"
+        ],
+        "quotes": [
+          "says, connecting to the backend...please wait.",
+          "immediately upon draft creation and is still trying to connect"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When actor creation or initialization errors, the UI does not remain in a perpetual connecting state.",
+        "ProjectsPage shows an English error message indicating the backend connection failed, and provides a Retry button that re-attempts actor creation.",
+        "AudioEditorPage shows an English error message indicating the backend connection failed, and provides a Retry button that re-attempts actor creation.",
+        "User-facing text is in English and does not display raw/technical stack traces; it uses the existing backend error formatting utility where applicable."
+      ]
+    },
+    {
+      "id": "REQ-22",
+      "text": "Refactor frontend data/query hooks that depend on the backend actor to use the new actor/connection hook (instead of the immutable useActor.ts), ensuring queries are disabled until an actor is ready and surface errors distinctly from “connecting”.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages-7"
+        ],
+        "quotes": [
+          "immediately upon draft creation and is still trying to connect"
+        ]
+      },
+      "acceptanceCriteria": [
+        "React Query calls that require the backend actor do not run until actor readiness is true.",
+        "If actor creation fails, queries do not spin indefinitely; they are paused/disabled and the UI shows the connection error state described in REQ-21.",
+        "After a successful retry, paused queries proceed and the app transitions to the normal Projects/Editor UI without requiring a full page refresh."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend.immutablePaths (including frontend/src/hooks/useActor.ts, frontend/src/main.tsx, and frontend/src/components/ui).",
-    "Keep all user-facing text in English."
+    "Backend must remain a single Motoko actor with all logic in backend/main.mo (no additional backend services).",
+    "Do not edit any files under frontend/immutablePaths, including frontend/src/hooks/useActor.ts and frontend/src/hooks/useInternetIdentity.ts(x).",
+    "Use English for all user-facing UI text."
   ],
   "nonGoals": [
-    "Changing the Internet Identity authentication flow.",
-    "Implementing new backend features unrelated to connection/readiness handling.",
-    "Adding real-time communication (WebSockets) or external service dependencies."
+    "Adding new authentication providers (only Internet Identity is supported).",
+    "Adding real-time communication (WebSockets/push/chat).",
+    "Introducing external databases or third-party backend services."
   ],
   "imageRequirements": {
     "required": [],

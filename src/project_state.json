@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 11,
+  "projectStateVersion": 13,
   "summary": "App for uploading audio files (WAV/MP3/MP4) and editing them with an equalizer and instrument stem separation controls.",
   "architectural_notes": [
     "Any “AI-like” generation must run on-device (e.g., tempo detection + procedural pattern generation via WebAudio); do not rely on large AI models or external AI APIs/services given current platform constraints."
@@ -8,7 +8,8 @@
   "known_issues": [
     "Stem separation controls are currently inactive; selecting stems does not enable per-stem adjustments.",
     "Creating a new project fails with \"failed to create project\" even after page refresh (clicking \"create project\" triggers error).",
-    "Backend connection is not ready / unavailable (app cannot connect to the backend)."
+    "Backend connection is not ready / unavailable (app cannot connect to the backend).",
+    "On initial app load (immediately after draft creation), UI stays stuck on \"connecting to the backend...please wait\" and never transitions to ready."
   ],
   "isFixRequest": true,
   "existing_features": [
@@ -139,6 +140,30 @@
         "REQ-18"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-add-a-new-frontend-actor-connection-hook-do-not-edit-immutable-frontend-src-hooks-useactor-ts-that-a-creates-the-backend-actor-for-anonymous-or-authenticated-identities-b-does-not-block-actor-creation-on-optional-admin-secret-initialization-and-c-exposes-explicit-connection-states-loading-ready-error-plus-an-error-message-suitable-for-ui-display",
+      "title": "Add a new frontend actor/connection hook (do not edit immutable frontend/src/hooks/useActor.ts) that (a) creates the backend actor for anonymous or authenticated identities, (b) does not block actor creation on optional admin-secret initialization, and (c) exposes explicit connection states (loading/ready/error) plus an error message suitable for UI display.",
+      "reqIds": [
+        "REQ-20"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-backend-readiness-ui-logic-to-stop-showing-an-infinite-connecting-to-the-backend-please-wait-state-when-actor-creation-fails-instead-show-an-english-error-state-with-a-clear-retry-action-on-both-projectspage-and-audioeditorpage",
+      "title": "Update backend readiness UI logic to stop showing an infinite “Connecting to the backend… Please wait.” state when actor creation fails; instead, show an English error state with a clear retry action on both ProjectsPage and AudioEditorPage.",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-refactor-frontend-data-query-hooks-that-depend-on-the-backend-actor-to-use-the-new-actor-connection-hook-instead-of-the-immutable-useactor-ts-ensuring-queries-are-disabled-until-an-actor-is-ready-and-surface-errors-distinctly-from-connecting",
+      "title": "Refactor frontend data/query hooks that depend on the backend actor to use the new actor/connection hook (instead of the immutable useActor.ts), ensuring queries are disabled until an actor is ready and surface errors distinctly from “connecting”.",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -186,6 +211,14 @@
       "id": "AR-12",
       "summary": "Add a lightweight on-device “AI-like” feature: analyze uploaded audio for tempo (and optionally basic harmony/chords) and generate simple virtual instrument parts (e.g., drum/bass/guitar patterns) that can be mixed into the track via WebAudio—no external AI services required.",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-13",
+      "summary": "Update backend authorization so a normal authenticated Internet Identity user can successfully call user-level APIs (e.g., getCallerUserProfile, getAllProjects, createProject) without requiring any admin secret-token initialization step.",
+      "reqIds": [
+        "REQ-19"
+      ],
       "status": "pending"
     }
   ],

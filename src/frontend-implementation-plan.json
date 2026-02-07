@@ -1,79 +1,74 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Gate backend-dependent actions until the backend actor is ready",
+  "title": "Fix infinite backend connecting state by adding resilient actor connection hook and error-aware UI",
   "requirements": [
     {
-      "id": "REQ-17",
-      "summary": "Disable backend-dependent actions while the backend actor is still initializing and show clear English connecting feedback across Projects and Editor flows.",
+      "id": "REQ-20",
+      "summary": "Create a new resilient actor/connection hook that supports anonymous/authenticated identities, non-blocking optional admin-secret init, explicit connection states, and retry.",
       "acceptanceCriteria": [
-        "On the Projects page, the primary actions that require backend access (e.g., \"New Project\" / opening the create dialog) are disabled whenever the backend actor is null or still fetching.",
-        "When backend is not ready, the Projects page shows a clear, English message (inline on the page or near the disabled controls) indicating the app is connecting to the backend and the user should wait.",
-        "In the Create Project dialog, submitting while the backend actor is not ready is prevented, and an English toast/message explains to wait and try again (no backend call is attempted in this state).",
-        "The editor route (/editor/$projectId) does not attempt backend-dependent fetches/actions in a way that produces the \"Connection to the backend is not ready\" error for normal loading; the UI should display an appropriate loading/connecting state until ready.",
-        "No changes are made to immutable frontend paths (notably frontend/src/hooks/useActor.ts)."
+        "A new hook exists (in a new file) that provides: actor (or null), isLoading (boolean), isError (boolean), and error (unknown or parsed message).",
+        "If optional admin-secret initialization fails, the hook still returns a usable actor for normal user flows, and surfaces the init failure as a non-blocking warning (not an infinite loading state).",
+        "The hook supports a user-initiated retry mechanism (e.g., refetch/reset) that can be called from the UI."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/projects/ProjectsPage.tsx",
-          "operation": "modify",
-          "description": "Gate Projects page actions that depend on backend availability: disable the \"New Project\" button and the empty-state \"Create Your First Project\" button while backend is connecting/unavailable, and render a clear inline English message near the controls (e.g., \"Connecting to the backend… Please wait.\") instead of allowing failures."
-        },
-        {
-          "path": "frontend/src/features/projects/components/ProjectDialogs.tsx",
-          "operation": "modify",
-          "description": "Prevent opening/submitting Create Project when backend is not ready: block form submission before any mutation runs, show an English toast explaining the backend is still connecting and to wait, and ensure no backend call is attempted in that state. Also ensure dialog open attempts are guarded (e.g., ignore onOpenChange/open state changes when not ready and notify the user)."
-        },
-        {
-          "path": "frontend/src/features/editor/AudioEditorPage.tsx",
-          "operation": "modify",
-          "description": "Add a backend-connecting UI state for the editor route so it does not fall through to \"Project not found\" while actor initialization is in progress; only show project-not-found after backend is ready and the project fetch has completed."
-        },
-        {
-          "path": "frontend/src/features/editor/components/AudioUploadCard.tsx",
-          "operation": "modify",
-          "description": "Gate upload interactions that require backend access: disable the dropzone/click-to-upload behavior while backend is not ready and show a clear English message indicating the app is connecting and the user should wait (avoids triggering mutations that would fail due to actor unavailability)."
-        },
-        {
-          "path": "frontend/src/utils/backendError.ts",
-          "operation": "modify",
-          "description": "Align the user-facing error text for actor-unavailable cases with the new readiness messaging (English, consistent phrasing), so any remaining edge-case error surfaces as a clear 'connecting' instruction rather than the raw \"Connection to the backend is not ready.\" message."
+          "path": "frontend/src/hooks/useActorConnection.ts",
+          "operation": "create",
+          "description": "Create a new hook (do not modify frontend/src/hooks/useActor.ts) that creates the backend actor for anonymous or authenticated identities, attempts optional admin-secret initialization in a non-blocking try/catch, and exposes { actor|null, isLoading, isError, error, retry }. Ensure failures in optional admin init do not prevent returning a usable actor; instead expose them as a warning/error value suitable for UI display. Implement retry by forcing a fresh actor creation attempt (e.g., via React Query key bump or internal state reset)."
         }
       ]
     },
     {
-      "id": "REQ-18",
-      "summary": "Create a lightweight reusable backend-readiness hook/helper and apply it consistently on backend-dependent screens.",
+      "id": "REQ-21",
+      "summary": "Replace infinite “Connecting…” UI with an English error state and Retry action on ProjectsPage and AudioEditorPage when actor creation fails.",
       "acceptanceCriteria": [
-        "A new non-immutable module (e.g., under frontend/src/hooks/ or frontend/src/utils/) provides a single place to derive readiness state from useActor() (e.g., ready vs connecting vs unavailable).",
-        "ProjectsPage and ProjectDialogs use the shared readiness utility instead of duplicating connection-state logic.",
-        "User-facing text for readiness states is English and consistent across the app (e.g., \"Connecting to the backend…\")."
+        "When actor creation or initialization errors, the UI does not remain in a perpetual connecting state.",
+        "ProjectsPage shows an English error message indicating the backend connection failed, and provides a Retry button that re-attempts actor creation.",
+        "AudioEditorPage shows an English error message indicating the backend connection failed, and provides a Retry button that re-attempts actor creation.",
+        "User-facing text is in English and does not display raw/technical stack traces; it uses the existing backend error formatting utility where applicable."
       ],
       "file_operations": [
         {
           "path": "frontend/src/hooks/useBackendReadiness.ts",
-          "operation": "create",
-          "description": "Create a reusable backend readiness utility hook that derives a small readiness state machine (e.g., ready/connecting/unavailable) from useActor() without modifying immutable files, and provides consistent English user-facing copy (e.g., \"Connecting to the backend…\")."
+          "operation": "modify",
+          "description": "Refactor readiness to use the new frontend/src/hooks/useActorConnection.ts hook instead of the immutable useActor.ts. Expand readiness state to distinguish connecting vs error (e.g., isConnecting/isReady/isError plus displayMessage and a retry handler) so pages can render a non-infinite error UI."
         },
         {
           "path": "frontend/src/features/projects/ProjectsPage.tsx",
           "operation": "modify",
-          "description": "Update ProjectsPage to use the shared useBackendReadiness hook for deriving readiness/connecting state and consistent English messaging, rather than embedding ad-hoc actor/isFetching checks."
-        },
-        {
-          "path": "frontend/src/features/projects/components/ProjectDialogs.tsx",
-          "operation": "modify",
-          "description": "Update ProjectDialogs to use the shared useBackendReadiness hook for readiness gating and consistent English toast/message content when the backend is still connecting."
+          "description": "Update backend readiness UI logic to render: (1) connecting state while loading, (2) an English error state when readiness reports an error, including a Retry button wired to the new hook's retry mechanism, and (3) normal UI when ready. Use existing backend error formatting (frontend/src/utils/backendError.ts) to show user-friendly messages and avoid raw stack traces."
         },
         {
           "path": "frontend/src/features/editor/AudioEditorPage.tsx",
           "operation": "modify",
-          "description": "Use the shared useBackendReadiness hook to drive the editor's connecting/loading UI state consistently with the rest of the app."
+          "description": "Update backend readiness UI logic to render: (1) connecting state while loading, (2) an English error state when readiness reports an error, including a Retry button wired to the new hook's retry mechanism, and (3) normal editor UI when ready. Ensure this replaces any infinite 'Connecting to the backend… Please wait.' display when actor creation fails and avoids raw technical error output by using frontend/src/utils/backendError.ts."
         },
         {
-          "path": "frontend/src/features/editor/components/AudioUploadCard.tsx",
+          "path": "frontend/src/utils/backendError.ts",
           "operation": "modify",
-          "description": "Use the shared useBackendReadiness hook to consistently gate backend-dependent upload actions and display the same English connecting message when backend is not ready."
+          "description": "Adjust formatting so actor-connection failures can be rendered as a clear English 'backend connection failed' message (without stack traces) while preserving existing mappings. Ensure the formatted message works for the new connection hook's error shapes (unknown/error/string)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-22",
+      "summary": "Refactor actor-dependent React Query hooks to use the new connection hook and pause queries until the actor is ready, surfacing connection errors separately from connecting.",
+      "acceptanceCriteria": [
+        "React Query calls that require the backend actor do not run until actor readiness is true.",
+        "If actor creation fails, queries do not spin indefinitely; they are paused/disabled and the UI shows the connection error state described in REQ-21.",
+        "After a successful retry, paused queries proceed and the app transitions to the normal Projects/Editor UI without requiring a full page refresh."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Replace useActor() usage with the new useActorConnection() hook so queries/mutations that require an actor are disabled until the actor is ready (enabled guarded by readiness). Ensure queries do not return misleading 'connecting' states on actor errors; allow page-level readiness to drive the REQ-21 error UI. Keep profile modal flash prevention behavior by composing actor-connection loading with query loading."
+        },
+        {
+          "path": "frontend/src/components/auth/AuthGate.tsx",
+          "operation": "modify",
+          "description": "Ensure AuthGate's profile-setup gating remains correct with the new actor-connection readiness semantics coming through useGetCallerUserProfile (e.g., avoid showing profile setup until actor is ready and the profile query has truly fetched)."
         }
       ]
     }

@@ -50,7 +50,7 @@ actor {
   // User profile management
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can view profiles");
+      Runtime.trap("Unauthorized: Only users can access profiles");
     };
     userProfiles.get(caller);
   };
@@ -97,10 +97,16 @@ actor {
   };
 
   public query ({ caller }) func projectExists(projectId : Text) : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can check project existence");
+    };
     projects.containsKey(projectId);
   };
 
   public query ({ caller }) func getProject(projectId : Text) : async ?Project {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view projects");
+    };
     projects.get(projectId);
   };
 
@@ -163,10 +169,16 @@ actor {
   };
 
   public query ({ caller }) func getProjectIds() : async [Text] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can list projects");
+    };
     projectIds.toArray();
   };
 
   public query ({ caller }) func getAllProjects() : async [Project] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can list projects");
+    };
     projects.values().toArray().sort();
   };
 

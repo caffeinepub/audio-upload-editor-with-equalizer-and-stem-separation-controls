@@ -1,42 +1,46 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-07T08:01:41.735Z",
-  "summary": "Implemented a reusable backend readiness hook and applied it to ProjectsPage, ProjectDialogs, and parts of the editor UI to disable backend-dependent actions and show English connecting feedback. However, the editor route may still initiate backend-dependent queries before readiness gating, and some extra unrelated changes (backend error parsing + additional editor upload gating) were introduced beyond the stated requirements.",
+  "generatedAt": "2026-02-07T08:12:18.942Z",
+  "summary": "The diff adds a new actor connection hook and updates UI/pages and query hooks to avoid infinite “connecting” states and provide retry/error handling. However, the backend authorization change required for normal authenticated users to call user-level APIs without admin-secret initialization is not clearly implemented from the provided backend diff excerpt, and the new hook does not surface admin-secret init failure as a non-blocking warning to the UI (it only logs to console).",
   "missing_requirements": [
     {
-      "id": "REQ-17",
-      "requirement": "The editor route (/editor/$projectId) does not attempt backend-dependent fetches/actions in a way that produces the \"Connection to the backend is not ready\" error for normal loading; the UI should display an appropriate loading/connecting state until ready.",
-      "reason": "AudioEditorPage calls the backend-dependent query hook (useGetProject) unconditionally before checking readiness/connecting state, so the fetch may still be attempted while the actor is not ready (depending on useGetProject internals, which are not shown in the diff).",
+      "id": "REQ-19",
+      "requirement": "Update backend authorization so a normal authenticated Internet Identity user can successfully call user-level APIs without requiring any admin secret-token initialization step.",
+      "reason": "In the shown backend changes, user-level APIs (e.g., getCallerUserProfile, createProject) still hard-require `AccessControl.hasPermission(..., #user)` and trap with Unauthorized if not present. The diff excerpt does not show any logic that automatically grants `#user` permission to authenticated Internet Identity callers (or otherwise removes dependency on secret-token initialization for user-level access).",
       "evidence": [
-        "frontend/src/features/editor/AudioEditorPage.tsx"
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-20",
+      "requirement": "If optional admin-secret initialization fails, the hook still returns a usable actor for normal user flows, and surfaces the init failure as a non-blocking warning (not an infinite loading state).",
+      "reason": "The hook catches admin init errors and `console.warn`s, but does not expose any warning state/message to consumers; only `isError/error` from the actor creation query are returned, so admin init failure is not surfaced to UI as a non-blocking warning.",
+      "evidence": [
+        "frontend/src/hooks/useActorConnection.ts"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Added a generalized backend error parsing/formatting utility with many specific mappings (unauthorized, already exists, permissions, traps/rejects) beyond readiness gating.",
-      "reason": "BuildRequest focuses on gating actions until backend actor is available and adding a readiness utility; it does not request new error parsing infrastructure.",
+      "description": "Introduced a new backend error parsing/formatting utility (`parseBackendError`, `formatErrorForDisplay`) rather than using an existing backend error formatting utility.",
+      "reason": "The BuildRequest asks to use the existing backend error formatting utility where applicable; the diff shows a newly added/overhauled utility but does not provide evidence that this was required or that it reuses an existing one.",
       "evidence": [
-        "frontend/src/utils/backendError.ts"
-      ]
-    },
-    {
-      "description": "Gated audio file upload interactions in the editor (dropzone/click upload) on backend readiness and added related UI copy (e.g., \"waiting for backend connection...\").",
-      "reason": "REQ-17/REQ-18 explicitly call out Projects page, Create Project dialog, and the editor route loading behavior; they do not request changes to audio upload behavior.",
-      "evidence": [
-        "frontend/src/features/editor/components/AudioUploadCard.tsx"
+        "frontend/src/utils/backendError.ts",
+        "frontend/src/hooks/useBackendReadiness.ts"
       ]
     }
   ],
-  "confidence": 0.68,
+  "confidence": 0.62,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
+    "frontend/src/components/auth/AuthGate.tsx",
     "frontend/src/features/editor/AudioEditorPage.tsx",
-    "frontend/src/features/editor/components/AudioUploadCard.tsx",
     "frontend/src/features/projects/ProjectsPage.tsx",
-    "frontend/src/features/projects/components/ProjectDialogs.tsx",
+    "frontend/src/hooks/useActorConnection.ts",
     "frontend/src/hooks/useBackendReadiness.ts",
+    "frontend/src/hooks/useQueries.ts",
     "frontend/src/utils/backendError.ts",
     "project_state.json"
   ]
