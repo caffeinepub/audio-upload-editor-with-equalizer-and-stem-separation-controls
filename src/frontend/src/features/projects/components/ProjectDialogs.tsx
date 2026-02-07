@@ -49,9 +49,14 @@ export default function ProjectDialogs({ createDialogOpen, setCreateDialogOpen }
       setName('');
       setDescription('');
     } catch (error) {
+      // Log the full error for debugging
+      console.error('Project creation error (full):', error);
+      console.error('Error type:', typeof error);
+      console.error('Error keys:', error && typeof error === 'object' ? Object.keys(error) : 'N/A');
+      
+      // Format and display user-friendly error
       const errorMessage = formatErrorForDisplay(error);
       toast.error(errorMessage);
-      console.error('Project creation error:', error);
     }
   };
 

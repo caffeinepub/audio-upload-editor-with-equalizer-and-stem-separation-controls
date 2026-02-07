@@ -1,61 +1,33 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-07T08:12:18.945Z",
+  "generatedAt": "2026-02-07T09:03:54.504Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 3,
+    "total": 2,
+    "implemented": 1,
     "items": [
       {
-        "id": "REQ-19",
-        "summary": "Update backend authorization so a normal authenticated Internet Identity user can successfully call user-level APIs (e.g., getCallerUserProfile, getAllProjects, createProject) without requiring any admin secret-token initialization step.",
+        "id": "REQ-26",
+        "summary": "Fix backend authorization so any authenticated Internet Identity user (non-anonymous principal) can successfully call user-level APIs (including createProject, getCallerUserProfile, saveCallerUserProfile, getAllProjects, getProject, addFileToProject, and other project CRUD methods) after a page refresh without requiring any admin secret token initialization.",
         "status": "unknown",
         "plannedFiles": [],
         "matchedFiles": []
       },
       {
-        "id": "REQ-20",
-        "summary": "Add a new frontend actor/connection hook (do not edit immutable frontend/src/hooks/useActor.ts) that (a) creates the backend actor for anonymous or authenticated identities, (b) does not block actor creation on optional admin-secret initialization, and (c) exposes explicit connection states (loading/ready/error) plus an error message suitable for UI display.",
+        "id": "REQ-27",
+        "summary": "Improve frontend error extraction/parsing so backend authorization and canister rejection errors are shown to the user as a specific, actionable English message (instead of the generic fallback “The operation could not be completed…”), especially for Create Project failures.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useActorConnection.ts"
+          "frontend/src/utils/backendError.ts",
+          "frontend/src/features/projects/components/ProjectDialogs.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useActorConnection.ts"
-        ]
-      },
-      {
-        "id": "REQ-21",
-        "summary": "Update backend readiness UI logic to stop showing an infinite “Connecting to the backend… Please wait.” state when actor creation fails; instead, show an English error state with a clear retry action on both ProjectsPage and AudioEditorPage.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/hooks/useBackendReadiness.ts",
-          "frontend/src/features/projects/ProjectsPage.tsx",
-          "frontend/src/features/editor/AudioEditorPage.tsx",
-          "frontend/src/utils/backendError.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/hooks/useBackendReadiness.ts",
-          "frontend/src/features/projects/ProjectsPage.tsx",
-          "frontend/src/features/editor/AudioEditorPage.tsx",
-          "frontend/src/utils/backendError.ts"
-        ]
-      },
-      {
-        "id": "REQ-22",
-        "summary": "Refactor frontend data/query hooks that depend on the backend actor to use the new actor/connection hook (instead of the immutable useActor.ts), ensuring queries are disabled until an actor is ready and surface errors distinctly from “connecting”.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/auth/AuthGate.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/auth/AuthGate.tsx"
+          "frontend/src/utils/backendError.ts",
+          "frontend/src/features/projects/components/ProjectDialogs.tsx"
         ]
       }
     ]
@@ -66,12 +38,7 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/auth/AuthGate.tsx",
-    "frontend/src/features/editor/AudioEditorPage.tsx",
-    "frontend/src/features/projects/ProjectsPage.tsx",
-    "frontend/src/hooks/useActorConnection.ts",
-    "frontend/src/hooks/useBackendReadiness.ts",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/features/projects/components/ProjectDialogs.tsx",
     "frontend/src/utils/backendError.ts",
     "project_state.json",
     "scratch/component-selection.json",

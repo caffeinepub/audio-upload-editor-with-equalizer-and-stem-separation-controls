@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 13,
+  "projectStateVersion": 17,
   "summary": "App for uploading audio files (WAV/MP3/MP4) and editing them with an equalizer and instrument stem separation controls.",
   "architectural_notes": [
     "Any “AI-like” generation must run on-device (e.g., tempo detection + procedural pattern generation via WebAudio); do not rely on large AI models or external AI APIs/services given current platform constraints."
@@ -164,6 +164,38 @@
         "REQ-22"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-add-a-generated-background-image-as-a-static-frontend-asset-under-frontend-public-assets-generated-and-reference-it-via-a-stable-relative-url-so-it-can-be-used-as-the-app-wide-background",
+      "title": "Add a generated background image as a static frontend asset under `frontend/public/assets/generated/`, and reference it via a stable relative URL so it can be used as the app-wide background.",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-the-background-image-globally-across-all-routes-by-updating-the-top-level-layout-container-currently-frontend-src-components-layout-applayout-tsx-to-render-the-background-image-behind-all-content-while-preserving-readability-via-an-overlay-e-g-a-subtle-dark-light-scrim-and-keeping-existing-header-footer-styling-intact",
+      "title": "Apply the background image globally across all routes by updating the top-level layout container (currently `frontend/src/components/layout/AppLayout.tsx`) to render the background image behind all content, while preserving readability via an overlay (e.g., a subtle dark/light scrim) and keeping existing header/footer styling intact.",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-any-necessary-global-css-in-frontend-src-index-css-to-support-a-full-viewport-background-image-presentation-e-g-cover-fixed-scroll-behavior-and-overlay-styling-without-breaking-the-existing-tailwind-theme-variables-and-bg-background-usage",
+      "title": "Add any necessary global CSS (in `frontend/src/index.css`) to support a full-viewport background image presentation (e.g., cover, fixed/scroll behavior, and overlay styling) without breaking the existing Tailwind theme variables and `bg-background` usage.",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-improve-frontend-error-extraction-parsing-so-backend-authorization-and-canister-rejection-errors-are-shown-to-the-user-as-a-specific-actionable-english-message-instead-of-the-generic-fallback-the-operation-could-not-be-completed-especially-for-create-project-failures",
+      "title": "Improve frontend error extraction/parsing so backend authorization and canister rejection errors are shown to the user as a specific, actionable English message (instead of the generic fallback “The operation could not be completed…”), especially for Create Project failures.",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -218,6 +250,20 @@
       "summary": "Update backend authorization so a normal authenticated Internet Identity user can successfully call user-level APIs (e.g., getCallerUserProfile, getAllProjects, createProject) without requiring any admin secret-token initialization step.",
       "reqIds": [
         "REQ-19"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-14",
+      "summary": "Add support for a customizable app background image (upload/select, preview immediately, and persist the choice).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-15",
+      "summary": "Fix backend authorization so any authenticated Internet Identity user (non-anonymous principal) can successfully call user-level APIs (including createProject, getCallerUserProfile, saveCallerUserProfile, getAllProjects, getProject, addFileToProject, and other project CRUD methods) after a page refresh without requiring any admin secret token initialization.",
+      "reqIds": [
+        "REQ-26"
       ],
       "status": "pending"
     }

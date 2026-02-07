@@ -5,8 +5,8 @@ import Iter "mo:core/Iter";
 import Text "mo:core/Text";
 import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
-import Order "mo:core/Order";
 import List "mo:core/List";
+import Order "mo:core/Order";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 import MixinStorage "blob-storage/Mixin";
@@ -14,7 +14,6 @@ import Storage "blob-storage/Storage";
 
 actor {
   let projects = Map.empty<Text, Project>();
-
   let projectIds = List.empty<Text>();
 
   // Authorization
@@ -189,3 +188,4 @@ actor {
     };
   };
 };
+

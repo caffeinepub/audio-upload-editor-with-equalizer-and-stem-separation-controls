@@ -24,6 +24,7 @@
         --border: 0.92 0 0;
         --input: 0.92 0 0;
         --ring: 0.55 0.15 45;
+        --bg-overlay: 0.98 0 0 / 0.85;
     }
 
     .dark {
@@ -46,6 +47,7 @@
         --border: 0.25 0 0;
         --input: 0.25 0 0;
         --ring: 0.65 0.18 45;
+        --bg-overlay: 0.12 0 0 / 0.90;
     }
 
     * {
@@ -55,5 +57,32 @@
     body {
         @apply bg-background text-foreground;
         font-feature-settings: "rlig" 1, "calt" 1;
+    }
+}
+
+@layer components {
+    .app-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('/assets/generated/app-background.dim_1920x1080.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        z-index: -2;
+    }
+
+    .app-background-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: oklch(var(--bg-overlay));
+        z-index: -1;
+        pointer-events: none;
     }
 }

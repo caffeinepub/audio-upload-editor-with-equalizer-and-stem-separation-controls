@@ -1,46 +1,50 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-07T08:12:18.942Z",
-  "summary": "The diff adds a new actor connection hook and updates UI/pages and query hooks to avoid infinite “connecting” states and provide retry/error handling. However, the backend authorization change required for normal authenticated users to call user-level APIs without admin-secret initialization is not clearly implemented from the provided backend diff excerpt, and the new hook does not surface admin-secret init failure as a non-blocking warning to the UI (it only logs to console).",
+  "generatedAt": "2026-02-07T09:03:54.501Z",
+  "summary": "REQ-27 (frontend error parsing/surfacing) appears implemented via new backend error parsing utility and usage in Create Project dialog. REQ-26 (backend authorization allowing any authenticated II user without admin initialization, incl. after refresh) is not evidenced as implemented; backend still gates user APIs on AccessControl permission checks with no shown auto-grant for non-anonymous callers. Diff also includes multiple UI/UX changes unrelated to the request (e.g., background image overlay, editor/stem UI copy/behavior tweaks).",
   "missing_requirements": [
     {
-      "id": "REQ-19",
-      "requirement": "Update backend authorization so a normal authenticated Internet Identity user can successfully call user-level APIs without requiring any admin secret-token initialization step.",
-      "reason": "In the shown backend changes, user-level APIs (e.g., getCallerUserProfile, createProject) still hard-require `AccessControl.hasPermission(..., #user)` and trap with Unauthorized if not present. The diff excerpt does not show any logic that automatically grants `#user` permission to authenticated Internet Identity callers (or otherwise removes dependency on secret-token initialization for user-level access).",
+      "id": "REQ-26",
+      "requirement": "Fix backend authorization so any authenticated Internet Identity user (non-anonymous principal) can successfully call user-level APIs after a page refresh without requiring any admin secret token initialization.",
+      "reason": "The backend code shown still checks `AccessControl.hasPermission(..., caller, #user)` for user-level APIs (e.g., `createProject`, `getCallerUserProfile`, etc.) and traps with unauthorized messages, but the diff summary does not show any change that grants `#user` permission to all non-anonymous principals by default (or otherwise removes dependency on prior admin/secret initialization).",
       "evidence": [
         "backend/main.mo"
-      ]
-    },
-    {
-      "id": "REQ-20",
-      "requirement": "If optional admin-secret initialization fails, the hook still returns a usable actor for normal user flows, and surfaces the init failure as a non-blocking warning (not an infinite loading state).",
-      "reason": "The hook catches admin init errors and `console.warn`s, but does not expose any warning state/message to consumers; only `isError/error` from the actor creation query are returned, so admin init failure is not surfaced to UI as a non-blocking warning.",
-      "evidence": [
-        "frontend/src/hooks/useActorConnection.ts"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Introduced a new backend error parsing/formatting utility (`parseBackendError`, `formatErrorForDisplay`) rather than using an existing backend error formatting utility.",
-      "reason": "The BuildRequest asks to use the existing backend error formatting utility where applicable; the diff shows a newly added/overhauled utility but does not provide evidence that this was required or that it reuses an existing one.",
+      "description": "Added fixed background image layer and semi-transparent overlay in shared layout for readability.",
+      "reason": "BuildRequest explicitly lists customizable background image upload/selection as a non-goal, and no UI theme/background changes were requested as part of the authorization/error-surfacing fix.",
       "evidence": [
-        "frontend/src/utils/backendError.ts",
-        "frontend/src/hooks/useBackendReadiness.ts"
+        "frontend-file-summaries.txt (frontend/src/components/layout/AppLayout.tsx)"
+      ]
+    },
+    {
+      "description": "Broader backend readiness/error-aware UI changes across ProjectsPage, AudioEditorPage, AudioUploadCard, and AuthGate (retry buttons, preventing infinite connecting state, gating interactions).",
+      "reason": "REQ-27 focuses on improved error extraction/parsing and surfacing specific actionable English messages (especially Create Project). These additional readiness gating and page-level UI state changes are beyond the requested scope in the BuildRequest.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/features/projects/ProjectsPage.tsx)",
+        "frontend-file-summaries.txt (frontend/src/features/editor/AudioEditorPage.tsx)",
+        "frontend-file-summaries.txt (frontend/src/features/editor/components/AudioUploadCard.tsx)",
+        "frontend-file-summaries.txt (frontend/src/components/auth/AuthGate.tsx)"
+      ]
+    },
+    {
+      "description": "Changes to stem separation/editor UI copy/behavior (distinguishing “Separated” vs “Generated” stems and related copy).",
+      "reason": "BuildRequest non-goals include changing the audio editor, stem separation, EQ, or export behavior.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/features/editor/components/StemSeparationPanel.tsx)",
+        "frontend-file-summaries.txt (frontend/src/features/editor/components/StemMixer.tsx)"
       ]
     }
   ],
-  "confidence": 0.62,
+  "confidence": 0.66,
   "changed_files": [
     "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/auth/AuthGate.tsx",
-    "frontend/src/features/editor/AudioEditorPage.tsx",
-    "frontend/src/features/projects/ProjectsPage.tsx",
-    "frontend/src/hooks/useActorConnection.ts",
-    "frontend/src/hooks/useBackendReadiness.ts",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/features/projects/components/ProjectDialogs.tsx",
     "frontend/src/utils/backendError.ts",
     "project_state.json"
   ]

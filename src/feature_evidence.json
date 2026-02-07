@@ -2,32 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-new-frontend-actor-connection-hook-do-not-edit-immutable-frontend-src-hooks-useactor-ts-that-a-creates-the-backend-actor-for-anonymous-or-authenticated-identities-b-does-not-block-actor-creation-on-optional-admin-secret-initialization-and-c-exposes-explicit-connection-states-loading-ready-error-plus-an-error-message-suitable-for-ui-display",
-      "featureTitle": "Add a new frontend actor/connection hook (do not edit immutable frontend/src/hooks/useActor.ts) that (a) creates the backend actor for anonymous or authenticated identities, (b) does not block actor creation on optional admin-secret initialization, and (c) exposes explicit connection states (loading/ready/error) plus an error message suitable for UI display.",
+      "featureId": "feature-improve-frontend-error-extraction-parsing-so-backend-authorization-and-canister-rejection-errors-are-shown-to-the-user-as-a-specific-actionable-english-message-instead-of-the-generic-fallback-the-operation-could-not-be-completed-especially-for-create-project-failures",
+      "featureTitle": "Improve frontend error extraction/parsing so backend authorization and canister rejection errors are shown to the user as a specific, actionable English message (instead of the generic fallback “The operation could not be completed…”), especially for Create Project failures.",
       "files": [
-        "frontend/src/hooks/useActorConnection.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-20"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-backend-readiness-ui-logic-to-stop-showing-an-infinite-connecting-to-the-backend-please-wait-state-when-actor-creation-fails-instead-show-an-english-error-state-with-a-clear-retry-action-on-both-projectspage-and-audioeditorpage",
-      "featureTitle": "Update backend readiness UI logic to stop showing an infinite “Connecting to the backend… Please wait.” state when actor creation fails; instead, show an English error state with a clear retry action on both ProjectsPage and AudioEditorPage.",
-      "files": [
-        "frontend/src/features/editor/AudioEditorPage.tsx",
-        "frontend/src/features/projects/ProjectsPage.tsx",
-        "frontend/src/hooks/useBackendReadiness.ts",
+        "frontend/src/features/projects/components/ProjectDialogs.tsx",
         "frontend/src/utils/backendError.ts"
       ],
       "components": [
@@ -40,28 +18,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-21"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-refactor-frontend-data-query-hooks-that-depend-on-the-backend-actor-to-use-the-new-actor-connection-hook-instead-of-the-immutable-useactor-ts-ensuring-queries-are-disabled-until-an-actor-is-ready-and-surface-errors-distinctly-from-connecting",
-      "featureTitle": "Refactor frontend data/query hooks that depend on the backend actor to use the new actor/connection hook (instead of the immutable useActor.ts), ensuring queries are disabled until an actor is ready and surface errors distinctly from “connecting”.",
-      "files": [
-        "frontend/src/components/auth/AuthGate.tsx",
-        "frontend/src/hooks/useQueries.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-22"
+        "REQ-27"
       ],
       "confidence": "high"
     }

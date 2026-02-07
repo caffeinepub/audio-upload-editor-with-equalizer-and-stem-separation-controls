@@ -1,93 +1,60 @@
 {
   "kind": "build_request",
-  "title": "Fix infinite “Connecting to the backend… Please wait.” state on initial load",
+  "title": "Fix project creation failure by correcting backend user authorization and surfacing real errors",
   "priority": "high",
   "requirements": [
     {
-      "id": "REQ-19",
-      "text": "Update backend authorization so a normal authenticated Internet Identity user can successfully call user-level APIs (e.g., getCallerUserProfile, getAllProjects, createProject) without requiring any admin secret-token initialization step.",
+      "id": "REQ-26",
+      "text": "Fix backend authorization so any authenticated Internet Identity user (non-anonymous principal) can successfully call user-level APIs (including createProject, getCallerUserProfile, saveCallerUserProfile, getAllProjects, getProject, addFileToProject, and other project CRUD methods) after a page refresh without requiring any admin secret token initialization.",
       "target": "backend",
       "source": {
         "messageIds": [
-          "recent-messages-7"
+          "msg-6"
         ],
         "quotes": [
-          "immediately upon draft creation and is still trying to connect"
+          "fix",
+          "create project",
+          "The operation could not be completed. Please try again or contact support if the issue persists."
         ]
       },
       "acceptanceCriteria": [
-        "After logging in with Internet Identity, calling getCallerUserProfile does not trap with an authorization error solely because an admin secret was not provided.",
-        "After a fresh page load, an authenticated user can successfully create a project without any secret token present in URL/session params.",
-        "The backend still preserves admin-only privileges for admin actions (if any), and does not automatically grant admin rights to normal users."
+        "When logged in with Internet Identity, calling createProject succeeds without requiring any URL/admin secret token, including immediately after a hard page refresh.",
+        "When not logged in (anonymous), createProject and other user-level APIs reject with a clear English error indicating login is required.",
+        "ProjectsPage can load projects for an authenticated user (getAllProjects) without admin initialization.",
+        "The change does not require any additional backend services or multiple actors; all logic remains in backend/main.mo."
       ]
     },
     {
-      "id": "REQ-20",
-      "text": "Add a new frontend actor/connection hook (do not edit immutable frontend/src/hooks/useActor.ts) that (a) creates the backend actor for anonymous or authenticated identities, (b) does not block actor creation on optional admin-secret initialization, and (c) exposes explicit connection states (loading/ready/error) plus an error message suitable for UI display.",
+      "id": "REQ-27",
+      "text": "Improve frontend error extraction/parsing so backend authorization and canister rejection errors are shown to the user as a specific, actionable English message (instead of the generic fallback “The operation could not be completed…”), especially for Create Project failures.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages-7"
+          "msg-5",
+          "msg-6"
         ],
         "quotes": [
-          "immediately upon draft creation and is still trying to connect"
+          "The operation could not be completed. Please try again or contact support if the issue persists.",
+          "create project"
         ]
       },
       "acceptanceCriteria": [
-        "A new hook exists (in a new file) that provides: actor (or null), isLoading (boolean), isError (boolean), and error (unknown or parsed message).",
-        "If optional admin-secret initialization fails, the hook still returns a usable actor for normal user flows, and surfaces the init failure as a non-blocking warning (not an infinite loading state).",
-        "The hook supports a user-initiated retry mechanism (e.g., refetch/reset) that can be called from the UI."
-      ]
-    },
-    {
-      "id": "REQ-21",
-      "text": "Update backend readiness UI logic to stop showing an infinite “Connecting to the backend… Please wait.” state when actor creation fails; instead, show an English error state with a clear retry action on both ProjectsPage and AudioEditorPage.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "recent-messages-4",
-          "recent-messages-7"
-        ],
-        "quotes": [
-          "says, connecting to the backend...please wait.",
-          "immediately upon draft creation and is still trying to connect"
-        ]
-      },
-      "acceptanceCriteria": [
-        "When actor creation or initialization errors, the UI does not remain in a perpetual connecting state.",
-        "ProjectsPage shows an English error message indicating the backend connection failed, and provides a Retry button that re-attempts actor creation.",
-        "AudioEditorPage shows an English error message indicating the backend connection failed, and provides a Retry button that re-attempts actor creation.",
-        "User-facing text is in English and does not display raw/technical stack traces; it uses the existing backend error formatting utility where applicable."
-      ]
-    },
-    {
-      "id": "REQ-22",
-      "text": "Refactor frontend data/query hooks that depend on the backend actor to use the new actor/connection hook (instead of the immutable useActor.ts), ensuring queries are disabled until an actor is ready and surface errors distinctly from “connecting”.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "recent-messages-7"
-        ],
-        "quotes": [
-          "immediately upon draft creation and is still trying to connect"
-        ]
-      },
-      "acceptanceCriteria": [
-        "React Query calls that require the backend actor do not run until actor readiness is true.",
-        "If actor creation fails, queries do not spin indefinitely; they are paused/disabled and the UI shows the connection error state described in REQ-21.",
-        "After a successful retry, paused queries proceed and the app transitions to the normal Projects/Editor UI without requiring a full page refresh."
+        "If createProject fails due to unauthorized/permission issues, the toast displays an English message indicating the user must be logged in (and does not show only the generic fallback message).",
+        "If createProject fails due to a duplicate name (“Project already exists”), the toast instructs the user to choose a different project name.",
+        "If createProject fails due to connectivity/actor issues, the toast indicates backend connection failed and suggests retrying.",
+        "No user-facing toast or inline error for Create Project uses non-English text."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor with all logic in backend/main.mo (no additional backend services).",
-    "Do not edit any files under frontend/immutablePaths, including frontend/src/hooks/useActor.ts and frontend/src/hooks/useInternetIdentity.ts(x).",
-    "Use English for all user-facing UI text."
+    "Respect the single-actor backend architecture; keep all Motoko logic in backend/main.mo.",
+    "Do not edit files under frontend/src/hooks/useActor.ts or other frontend immutablePaths.",
+    "Do not introduce external databases, third-party auth providers, or external services."
   ],
   "nonGoals": [
-    "Adding new authentication providers (only Internet Identity is supported).",
-    "Adding real-time communication (WebSockets/push/chat).",
-    "Introducing external databases or third-party backend services."
+    "Adding new project features (sharing, folders, tags, templates).",
+    "Changing the audio editor, stem separation, EQ, or export behavior.",
+    "Implementing customizable background image upload/selection (not part of this fix request)."
   ],
   "imageRequirements": {
     "required": [],
