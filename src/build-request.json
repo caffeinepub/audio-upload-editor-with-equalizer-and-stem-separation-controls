@@ -1,0 +1,58 @@
+{
+  "kind": "build_request",
+  "title": "Fix 'Connection to the backend is not ready' by gating actions until the backend actor is available",
+  "priority": "high",
+  "requirements": [
+    {
+      "id": "REQ-17",
+      "text": "Prevent user actions that require the backend actor from running while the backend connection is still initializing, and show clear English UI feedback instead of allowing operations to fail with \"Connection to the backend is not ready.\"",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "says connection to back end is not ready"
+        ]
+      },
+      "acceptanceCriteria": [
+        "On the Projects page, the primary actions that require backend access (e.g., \"New Project\" / opening the create dialog) are disabled whenever the backend actor is null or still fetching.",
+        "When backend is not ready, the Projects page shows a clear, English message (inline on the page or near the disabled controls) indicating the app is connecting to the backend and the user should wait.",
+        "In the Create Project dialog, submitting while the backend actor is not ready is prevented, and an English toast/message explains to wait and try again (no backend call is attempted in this state).",
+        "The editor route (/editor/$projectId) does not attempt backend-dependent fetches/actions in a way that produces the \"Connection to the backend is not ready\" error for normal loading; the UI should display an appropriate loading/connecting state until ready.",
+        "No changes are made to immutable frontend paths (notably frontend/src/hooks/useActor.ts)."
+      ]
+    },
+    {
+      "id": "REQ-18",
+      "text": "Add a lightweight, reusable frontend \"backend readiness\" utility (hook or helper) that centralizes the logic for interpreting actor availability and loading state, and update backend-dependent screens to use it consistently.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "says connection to back end is not ready"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A new non-immutable module (e.g., under frontend/src/hooks/ or frontend/src/utils/) provides a single place to derive readiness state from useActor() (e.g., ready vs connecting vs unavailable).",
+        "ProjectsPage and ProjectDialogs use the shared readiness utility instead of duplicating connection-state logic.",
+        "User-facing text for readiness states is English and consistent across the app (e.g., \"Connecting to the backend…\")."
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not edit files under frontend.immutablePaths (including frontend/src/hooks/useActor.ts, frontend/src/main.tsx, and frontend/src/components/ui).",
+    "Keep all user-facing text in English."
+  ],
+  "nonGoals": [
+    "Changing the Internet Identity authentication flow.",
+    "Implementing new backend features unrelated to connection/readiness handling.",
+    "Adding real-time communication (WebSockets) or external service dependencies."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

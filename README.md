@@ -1,2 +1,3 @@
-# audio-upload-editor-with-equalizer-and-stem-separation-controls
-Exported from Caffeine project: Audio upload editor with equalizer and stem separation controls
+## 
+
+To run app build and run docker image: `docker build -t app . docker run -it --network host app`

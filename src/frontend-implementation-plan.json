@@ -1,0 +1,81 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Gate backend-dependent actions until the backend actor is ready",
+  "requirements": [
+    {
+      "id": "REQ-17",
+      "summary": "Disable backend-dependent actions while the backend actor is still initializing and show clear English connecting feedback across Projects and Editor flows.",
+      "acceptanceCriteria": [
+        "On the Projects page, the primary actions that require backend access (e.g., \"New Project\" / opening the create dialog) are disabled whenever the backend actor is null or still fetching.",
+        "When backend is not ready, the Projects page shows a clear, English message (inline on the page or near the disabled controls) indicating the app is connecting to the backend and the user should wait.",
+        "In the Create Project dialog, submitting while the backend actor is not ready is prevented, and an English toast/message explains to wait and try again (no backend call is attempted in this state).",
+        "The editor route (/editor/$projectId) does not attempt backend-dependent fetches/actions in a way that produces the \"Connection to the backend is not ready\" error for normal loading; the UI should display an appropriate loading/connecting state until ready.",
+        "No changes are made to immutable frontend paths (notably frontend/src/hooks/useActor.ts)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/projects/ProjectsPage.tsx",
+          "operation": "modify",
+          "description": "Gate Projects page actions that depend on backend availability: disable the \"New Project\" button and the empty-state \"Create Your First Project\" button while backend is connecting/unavailable, and render a clear inline English message near the controls (e.g., \"Connecting to the backend… Please wait.\") instead of allowing failures."
+        },
+        {
+          "path": "frontend/src/features/projects/components/ProjectDialogs.tsx",
+          "operation": "modify",
+          "description": "Prevent opening/submitting Create Project when backend is not ready: block form submission before any mutation runs, show an English toast explaining the backend is still connecting and to wait, and ensure no backend call is attempted in that state. Also ensure dialog open attempts are guarded (e.g., ignore onOpenChange/open state changes when not ready and notify the user)."
+        },
+        {
+          "path": "frontend/src/features/editor/AudioEditorPage.tsx",
+          "operation": "modify",
+          "description": "Add a backend-connecting UI state for the editor route so it does not fall through to \"Project not found\" while actor initialization is in progress; only show project-not-found after backend is ready and the project fetch has completed."
+        },
+        {
+          "path": "frontend/src/features/editor/components/AudioUploadCard.tsx",
+          "operation": "modify",
+          "description": "Gate upload interactions that require backend access: disable the dropzone/click-to-upload behavior while backend is not ready and show a clear English message indicating the app is connecting and the user should wait (avoids triggering mutations that would fail due to actor unavailability)."
+        },
+        {
+          "path": "frontend/src/utils/backendError.ts",
+          "operation": "modify",
+          "description": "Align the user-facing error text for actor-unavailable cases with the new readiness messaging (English, consistent phrasing), so any remaining edge-case error surfaces as a clear 'connecting' instruction rather than the raw \"Connection to the backend is not ready.\" message."
+        }
+      ]
+    },
+    {
+      "id": "REQ-18",
+      "summary": "Create a lightweight reusable backend-readiness hook/helper and apply it consistently on backend-dependent screens.",
+      "acceptanceCriteria": [
+        "A new non-immutable module (e.g., under frontend/src/hooks/ or frontend/src/utils/) provides a single place to derive readiness state from useActor() (e.g., ready vs connecting vs unavailable).",
+        "ProjectsPage and ProjectDialogs use the shared readiness utility instead of duplicating connection-state logic.",
+        "User-facing text for readiness states is English and consistent across the app (e.g., \"Connecting to the backend…\")."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useBackendReadiness.ts",
+          "operation": "create",
+          "description": "Create a reusable backend readiness utility hook that derives a small readiness state machine (e.g., ready/connecting/unavailable) from useActor() without modifying immutable files, and provides consistent English user-facing copy (e.g., \"Connecting to the backend…\")."
+        },
+        {
+          "path": "frontend/src/features/projects/ProjectsPage.tsx",
+          "operation": "modify",
+          "description": "Update ProjectsPage to use the shared useBackendReadiness hook for deriving readiness/connecting state and consistent English messaging, rather than embedding ad-hoc actor/isFetching checks."
+        },
+        {
+          "path": "frontend/src/features/projects/components/ProjectDialogs.tsx",
+          "operation": "modify",
+          "description": "Update ProjectDialogs to use the shared useBackendReadiness hook for readiness gating and consistent English toast/message content when the backend is still connecting."
+        },
+        {
+          "path": "frontend/src/features/editor/AudioEditorPage.tsx",
+          "operation": "modify",
+          "description": "Use the shared useBackendReadiness hook to drive the editor's connecting/loading UI state consistently with the rest of the app."
+        },
+        {
+          "path": "frontend/src/features/editor/components/AudioUploadCard.tsx",
+          "operation": "modify",
+          "description": "Use the shared useBackendReadiness hook to consistently gate backend-dependent upload actions and display the same English connecting message when backend is not ready."
+        }
+      ]
+    }
+  ]
+}

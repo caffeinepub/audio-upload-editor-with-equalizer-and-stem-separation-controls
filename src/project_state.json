@@ -1,0 +1,196 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 11,
+  "summary": "App for uploading audio files (WAV/MP3/MP4) and editing them with an equalizer and instrument stem separation controls.",
+  "architectural_notes": [
+    "Any “AI-like” generation must run on-device (e.g., tempo detection + procedural pattern generation via WebAudio); do not rely on large AI models or external AI APIs/services given current platform constraints."
+  ],
+  "known_issues": [
+    "Stem separation controls are currently inactive; selecting stems does not enable per-stem adjustments.",
+    "Creating a new project fails with \"failed to create project\" even after page refresh (clicking \"create project\" triggers error).",
+    "Backend connection is not ready / unavailable (app cannot connect to the backend)."
+  ],
+  "isFixRequest": true,
+  "existing_features": [
+    {
+      "id": "feature-implement-an-audio-upload-workflow-that-accepts-wav-mp3-and-mp4-files-validates-file-type-size-and-loads-the-audio-into-the-editor-with-playback-controls",
+      "title": "Implement an audio upload workflow that accepts WAV, MP3, and MP4 files, validates file type/size, and loads the audio into the editor with playback controls.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-real-time-equalizer-editor-for-the-uploaded-audio-using-the-browser-audio-graph-including-adjustable-frequency-bands-and-an-on-off-toggle-while-preserving-smooth-playback",
+      "title": "Add a real-time equalizer editor for the uploaded audio using the browser audio graph, including adjustable frequency bands and an on/off toggle while preserving smooth playback.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-provide-instrument-stem-separation-with-user-controls-to-generate-common-stems-e-g-vocals-drums-bass-other-from-the-uploaded-track-and-allow-users-to-control-mute-solo-level-each-stem-in-a-simple-mixer",
+      "title": "Provide instrument stem separation with user controls to generate common stems (e.g., vocals, drums, bass, other) from the uploaded track, and allow users to control (mute/solo/level) each stem in a simple mixer.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enable-exporting-downloading-audio-outputs-1-the-mixed-stem-playback-result-and-2-individual-stems-as-separate-audio-files",
+      "title": "Enable exporting/downloading audio outputs: (1) the mixed stem playback result and (2) individual stems as separate audio files.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-project-organization-so-users-can-create-rename-and-delete-projects-that-store-the-audio-file-reference-or-uploaded-data-eq-settings-and-stem-mixer-settings-for-later-reopening",
+      "title": "Add project organization so users can create, rename, and delete “projects” that store the audio file reference (or uploaded data), EQ settings, and stem-mixer settings for later reopening.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-coherent-distinct-visual-theme-for-the-app-ui-colors-typography-spacing-and-component-styling-and-apply-it-consistently-across-upload-editor-and-project-views-avoid-blue-purple-as-default",
+      "title": "Create a coherent, distinct visual theme for the app UI (colors, typography, spacing, and component styling) and apply it consistently across upload, editor, and project views (avoid blue/purple as default).",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-stem-separation-to-generate-and-expose-exactly-these-individual-stems-drums-bass-guitar-and-vocals-replace-the-current-other-stem-with-guitar-and-update-any-user-facing-copy-in-the-editor-to-match-these-stem-names",
+      "title": "Update stem separation to generate and expose exactly these individual stems: drums, bass, guitar, and vocals (replace the current \"other\" stem with \"guitar\"), and update any user-facing copy in the editor to match these stem names.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-make-stem-mixer-controls-actively-affect-audio-playback-when-stems-are-available-playback-must-use-the-stem-buffers-mixed-together-and-changes-to-per-stem-volume-mute-and-solo-must-audibly-change-the-output-while-playing-with-changes-taking-effect-without-requiring-a-page-refresh",
+      "title": "Make stem mixer controls actively affect audio playback: when stems are available, playback must use the stem buffers mixed together, and changes to per-stem volume, mute, and solo must audibly change the output while playing (with changes taking effect without requiring a page refresh).",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-exporting-mixed-output-uses-the-current-stem-mixer-state-volume-mute-solo-and-exports-the-same-mixed-result-the-user-hears-when-stems-are-available",
+      "title": "Ensure exporting \"Mixed Output\" uses the current stem mixer state (volume/mute/solo) and exports the same mixed result the user hears when stems are available.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-improve-the-frontend-error-handling-for-project-creation-so-the-ui-displays-the-actual-backend-error-reason-when-available-instead-of-only-showing-the-generic-toast-failed-to-create-project",
+      "title": "Improve the frontend error handling for project creation so the UI displays the actual backend error reason (when available) instead of only showing the generic toast \"Failed to create project\".",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-on-device-analysis-step-for-an-uploaded-audio-track-that-estimates-tempo-bpm-and-exposes-the-result-in-the-editor-ui-without-using-any-external-ai-services-or-network-calls",
+      "title": "Add an on-device analysis step for an uploaded audio track that estimates tempo (BPM) and exposes the result in the editor UI, without using any external AI services or network calls.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-simple-virtual-instrument-generation-workflow-that-uses-the-analyzed-tempo-or-a-user-adjustable-tempo-override-to-generate-basic-accompaniment-parts-for-drums-bass-and-electric-guitar-like-sound-and-make-these-parts-available-as-stems-that-can-be-mixed-with-the-original-track-via-the-existing-stem-mixer-and-playback-export-pipeline",
+      "title": "Implement a simple virtual-instrument generation workflow that uses the analyzed tempo (or a user-adjustable tempo override) to generate basic accompaniment parts for drums, bass, and electric-guitar-like sound, and make these parts available as stems that can be mixed with the original track via the existing Stem Mixer and playback/export pipeline.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-editor-ui-panel-as-a-new-tab-or-within-the-existing-stem-separation-tab-labeled-in-english-for-the-ai-like-feature-providing-1-analyze-tempo-2-a-tempo-override-control-3-generate-parts-4-clear-generated-parts",
+      "title": "Add an editor UI panel (as a new tab or within the existing Stem Separation tab) labeled in English for the “AI-like” feature, providing: (1) Analyze Tempo, (2) a tempo override control, (3) Generate Parts, (4) Clear Generated Parts.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-keep-the-existing-stem-separation-workflow-intact-and-clearly-distinguish-in-ui-copy-between-stem-separation-and-generated-accompaniment-so-users-understand-which-feature-they-are-using",
+      "title": "Keep the existing stem-separation workflow intact and clearly distinguish (in UI copy) between “Stem Separation” and generated accompaniment, so users understand which feature they are using.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-prevent-user-actions-that-require-the-backend-actor-from-running-while-the-backend-connection-is-still-initializing-and-show-clear-english-ui-feedback-instead-of-allowing-operations-to-fail-with-connection-to-the-backend-is-not-ready",
+      "title": "Prevent user actions that require the backend actor from running while the backend connection is still initializing, and show clear English UI feedback instead of allowing operations to fail with \"Connection to the backend is not ready.\"",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-lightweight-reusable-frontend-backend-readiness-utility-hook-or-helper-that-centralizes-the-logic-for-interpreting-actor-availability-and-loading-state-and-update-backend-dependent-screens-to-use-it-consistently",
+      "title": "Add a lightweight, reusable frontend \"backend readiness\" utility (hook or helper) that centralizes the logic for interpreting actor availability and loading state, and update backend-dependent screens to use it consistently.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Support audio uploads (WAV, MP3, MP4).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Provide equalizer-based audio editing.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Provide instrument stem separation with user controls.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Implement backend storage APIs in the single Motoko actor to persist project metadata and (within defined limits) uploaded audio data, with clear size limits and deletion support.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Stem separation must expose active per-stem controls for drums, bass, guitar, and vocals (individually selectable/adjustable).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Fix the backend authorization / permission logic so an authenticated Internet Identity user can reliably create a project (and call other user-level project APIs) after a page refresh, without requiring any admin secret token.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-12",
+      "summary": "Add a lightweight on-device “AI-like” feature: analyze uploaded audio for tempo (and optionally basic harmony/chords) and generate simple virtual instrument parts (e.g., drum/bass/guitar patterns) that can be mixed into the track via WebAudio—no external AI services required.",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Audio upload editor with equalizer and stem separation controls",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

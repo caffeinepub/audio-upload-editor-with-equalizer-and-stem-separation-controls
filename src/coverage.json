@@ -1,0 +1,69 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-07T08:01:41.738Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 2,
+    "implemented": 2,
+    "items": [
+      {
+        "id": "REQ-17",
+        "summary": "Prevent user actions that require the backend actor from running while the backend connection is still initializing, and show clear English UI feedback instead of allowing operations to fail with \"Connection to the backend is not ready.\"",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/projects/ProjectsPage.tsx",
+          "frontend/src/features/projects/components/ProjectDialogs.tsx",
+          "frontend/src/features/editor/AudioEditorPage.tsx",
+          "frontend/src/features/editor/components/AudioUploadCard.tsx",
+          "frontend/src/utils/backendError.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/projects/ProjectsPage.tsx",
+          "frontend/src/features/projects/components/ProjectDialogs.tsx",
+          "frontend/src/features/editor/AudioEditorPage.tsx",
+          "frontend/src/features/editor/components/AudioUploadCard.tsx",
+          "frontend/src/utils/backendError.ts"
+        ]
+      },
+      {
+        "id": "REQ-18",
+        "summary": "Add a lightweight, reusable frontend \"backend readiness\" utility (hook or helper) that centralizes the logic for interpreting actor availability and loading state, and update backend-dependent screens to use it consistently.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useBackendReadiness.ts",
+          "frontend/src/features/projects/ProjectsPage.tsx",
+          "frontend/src/features/projects/components/ProjectDialogs.tsx",
+          "frontend/src/features/editor/AudioEditorPage.tsx",
+          "frontend/src/features/editor/components/AudioUploadCard.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useBackendReadiness.ts",
+          "frontend/src/features/projects/ProjectsPage.tsx",
+          "frontend/src/features/projects/components/ProjectDialogs.tsx",
+          "frontend/src/features/editor/AudioEditorPage.tsx",
+          "frontend/src/features/editor/components/AudioUploadCard.tsx"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "build-request.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/features/editor/AudioEditorPage.tsx",
+    "frontend/src/features/editor/components/AudioUploadCard.tsx",
+    "frontend/src/features/projects/ProjectsPage.tsx",
+    "frontend/src/features/projects/components/ProjectDialogs.tsx",
+    "frontend/src/hooks/useBackendReadiness.ts",
+    "frontend/src/utils/backendError.ts",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

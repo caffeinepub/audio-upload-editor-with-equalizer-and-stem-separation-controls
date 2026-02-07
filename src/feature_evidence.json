@@ -1,0 +1,53 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-prevent-user-actions-that-require-the-backend-actor-from-running-while-the-backend-connection-is-still-initializing-and-show-clear-english-ui-feedback-instead-of-allowing-operations-to-fail-with-connection-to-the-backend-is-not-ready",
+      "featureTitle": "Prevent user actions that require the backend actor from running while the backend connection is still initializing, and show clear English UI feedback instead of allowing operations to fail with \"Connection to the backend is not ready.\"",
+      "files": [
+        "frontend/src/features/editor/AudioEditorPage.tsx",
+        "frontend/src/features/editor/components/AudioUploadCard.tsx",
+        "frontend/src/features/projects/ProjectsPage.tsx",
+        "frontend/src/features/projects/components/ProjectDialogs.tsx",
+        "frontend/src/utils/backendError.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-17"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-lightweight-reusable-frontend-backend-readiness-utility-hook-or-helper-that-centralizes-the-logic-for-interpreting-actor-availability-and-loading-state-and-update-backend-dependent-screens-to-use-it-consistently",
+      "featureTitle": "Add a lightweight, reusable frontend \"backend readiness\" utility (hook or helper) that centralizes the logic for interpreting actor availability and loading state, and update backend-dependent screens to use it consistently.",
+      "files": [
+        "frontend/src/features/editor/AudioEditorPage.tsx",
+        "frontend/src/features/editor/components/AudioUploadCard.tsx",
+        "frontend/src/features/projects/ProjectsPage.tsx",
+        "frontend/src/features/projects/components/ProjectDialogs.tsx",
+        "frontend/src/hooks/useBackendReadiness.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-18"
+      ],
+      "confidence": "high"
+    }
+  ]
+}
